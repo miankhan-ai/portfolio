@@ -6,47 +6,90 @@
 
 :root {
   /* Dark-first theme palette */
-  --background: 224 71% 4%;     /* Very dark blue/black #030712 */
-  --foreground: 213 31% 91%;    /* Off-white #e2e8f0 */
-  
-  --primary: 252 59% 50%;       /* Deep Indigo #6366f1 */
+  --background: 224 71% 4%;
+  /* Very dark blue/black #030712 */
+  --foreground: 213 31% 91%;
+  /* Off-white #e2e8f0 */
+
+  --primary: 252 59% 50%;
+  /* Deep Indigo #6366f1 */
   --primary-foreground: 0 0% 100%;
-  
-  --secondary: 222 47% 11%;     /* Darker blue/grey for cards */
+
+  --secondary: 222 47% 11%;
+  /* Darker blue/grey for cards */
   --secondary-foreground: 210 40% 98%;
-  
-  --muted: 217 33% 17%;         /* Muted background for borders/dividers */
+
+  --muted: 217 33% 17%;
+  /* Muted background for borders/dividers */
   --muted-foreground: 215 20% 65%;
-  
-  --accent: 262 80% 50%;        /* Purple accent #8b5cf6 */
+
+  --accent: 262 80% 50%;
+  /* Purple accent #8b5cf6 */
   --accent-foreground: 210 40% 98%;
-  
+
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
 
   --border: 217 33% 17%;
   --input: 217 33% 17%;
   --ring: 252 59% 50%;
-  
+
   --radius: 0.5rem;
-  
+
   /* Custom Variables for decorative elements */
   --neon-glow: 0 0 10px rgba(99, 102, 241, 0.5);
+  --grid-color: 255, 255, 255;
+  --glass-border: 255 255 255;
+  --logo-filter: none;
+}
+
+.light {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+
+  --primary: 252 59% 50%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --accent: 262 80% 50%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 252 59% 50%;
+
+  --grid-color: 0, 0, 0;
+  --glass-border: 0 0 0;
+  --logo-filter: invert(1) brightness(0.2);
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
     font-family: 'Inter', sans-serif;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-bold tracking-tight;
   }
-  
+
   /* Monospace accents */
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
@@ -57,13 +100,39 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
   }
-  
+
+  /* Softer, more physical glass card */
   .glass-card {
-    @apply bg-secondary/30 backdrop-blur-md border border-white/5 shadow-xl;
+    @apply bg-secondary/40 backdrop-blur-xl shadow-lg transition-all duration-300;
+    border: 1px solid rgba(var(--glass-border), 0.1);
   }
-  
+
+  .glass-card-hover {
+    @apply hover:bg-secondary/60 hover:shadow-primary/20 hover:-translate-y-1 hover:border-primary/30;
+  }
+
+  /* Text handling */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .prose-relaxed {
+    @apply leading-relaxed tracking-wide;
+  }
+
   .neon-border {
     box-shadow: 0 0 5px theme('colors.indigo.500/20'), 0 0 10px theme('colors.indigo.500/10');
+  }
+
+  /* Background patterns */
+  .bg-grid-pattern {
+    background-image: radial-gradient(rgba(var(--grid-color), 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .theme-logo {
+    filter: var(--logo-filter);
+    transition: filter 0.3s ease;
   }
 }
 

@@ -9,8 +9,8 @@ interface SkillCardProps {
 
 export function SkillCard({ skill, index }: SkillCardProps) {
   // Dynamic icon rendering
-  const IconComponent = (skill.icon && (Icons as any)[skill.icon]) 
-    ? (Icons as any)[skill.icon] 
+  const IconComponent = (skill.icon && (Icons as any)[skill.icon])
+    ? (Icons as any)[skill.icon]
     : Icons.Code;
 
   return (
@@ -19,7 +19,7 @@ export function SkillCard({ skill, index }: SkillCardProps) {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="p-6 rounded-xl bg-secondary/20 border border-white/5 hover:bg-secondary/40 transition-colors"
+      className="p-6 rounded-2xl glass-card hover:bg-secondary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5"
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded bg-primary/10 text-primary">
@@ -27,7 +27,7 @@ export function SkillCard({ skill, index }: SkillCardProps) {
         </div>
         <h3 className="font-bold text-lg">{skill.category}</h3>
       </div>
-      
+
       <div className="flex flex-wrap gap-2">
         {skill.items.map((item) => (
           <span

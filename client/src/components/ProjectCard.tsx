@@ -14,7 +14,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative rounded-xl bg-secondary/30 border border-white/5 overflow-hidden hover:border-primary/50 transition-colors duration-300 flex flex-col h-full"
+      className="group relative rounded-2xl glass-card hover:border-primary/30 transition-all duration-500 flex flex-col h-full hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2"
     >
       <div className="aspect-video relative bg-muted overflow-hidden">
         {project.imageUrl ? (
@@ -28,7 +28,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
             <Terminal className="w-16 h-16 text-white/20" />
           </div>
         )}
-        
+
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
           {project.demoUrl && (
             <a
@@ -60,7 +60,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
             {project.category === 'featured' ? 'FEATURED' : 'PROJECT'}
           </span>
         </div>
-        
+
         <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
           {project.summary}
         </p>

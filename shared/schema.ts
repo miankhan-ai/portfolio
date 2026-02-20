@@ -38,7 +38,13 @@ export const messages = pgTable("messages", {
 
 export const insertProjectSchema = createInsertSchema(projects).omit({ id: true });
 export const insertSkillSchema = createInsertSchema(skills).omit({ id: true });
-export const insertMessageSchema = createInsertSchema(messages).omit({ id: true, createdAt: true });
+export const insertMessageSchema = createInsertSchema(messages)
+  .omit({ id: true, createdAt: true })
+  .extend({
+    name: z.string().min(1, "Name is required"),
+    email: z.string().email("Invalid email address").min(1, "Email is required"),
+    message: z.string().min(1, "Message is required"),
+  });
 
 // === TYPES ===
 

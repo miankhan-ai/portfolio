@@ -10,7 +10,7 @@ import { Loader2, Send } from "lucide-react";
 
 export function ContactForm() {
   const { mutate, isPending } = useContact();
-  
+
   const form = useForm<InsertMessage>({
     resolver: zodResolver(insertMessageSchema),
     defaultValues: {
@@ -39,9 +39,9 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel className="text-foreground/80">Name</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Jane Doe" 
-                    {...field} 
+                  <Input
+                    placeholder="Jane Doe"
+                    {...field}
                     className="bg-secondary/30 border-white/10 focus:border-primary/50 min-h-[50px]"
                   />
                 </FormControl>
@@ -56,10 +56,10 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel className="text-foreground/80">Email</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="jane@example.com" 
+                  <Input
+                    placeholder="jane@example.com"
                     type="email"
-                    {...field} 
+                    {...field}
                     className="bg-secondary/30 border-white/10 focus:border-primary/50 min-h-[50px]"
                   />
                 </FormControl>
@@ -68,7 +68,7 @@ export function ContactForm() {
             )}
           />
         </div>
-        
+
         <FormField
           control={form.control}
           name="message"
@@ -76,10 +76,10 @@ export function ContactForm() {
             <FormItem>
               <FormLabel className="text-foreground/80">Message</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Tell me about your project..." 
+                <Textarea
+                  placeholder="Tell me about your project..."
                   className="bg-secondary/30 border-white/10 focus:border-primary/50 min-h-[150px] resize-none"
-                  {...field} 
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -87,8 +87,8 @@ export function ContactForm() {
           )}
         />
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isPending}
           className="w-full md:w-auto px-8 py-6 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
         >
@@ -99,7 +99,7 @@ export function ContactForm() {
             </>
           ) : (
             <>
-              Send Message
+              Start a Conversation
               <Send className="ml-2 h-4 w-4" />
             </>
           )}
