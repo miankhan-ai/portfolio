@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { ArrowRight, BrainCircuit, Code2, Database } from "lucide-react";
-import profileImg from "@assets/343416498_1032557101038386_6788105226659903264_n_1770747098493.jpg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Hero() {
@@ -144,7 +143,7 @@ export function Hero() {
               <div className="absolute -inset-4 bg-gradient-to-r from-primary via-accent to-purple-500 rounded-[2rem] blur-2xl opacity-40 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
               <div className="relative rounded-[2rem] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 transition-transform duration-500 group-hover:rotate-0 group-hover:scale-[1.02]">
                 <img
-                  src={profileImg}
+                  src="/DP.jpg"
                   alt="Profile"
                   className="w-full max-w-[400px] h-auto object-cover"
                 />
