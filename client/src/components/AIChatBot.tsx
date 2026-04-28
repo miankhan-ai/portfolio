@@ -80,6 +80,60 @@ function parseSseDeltas(chunk: string): { deltas: string[]; done: boolean; error
   return { deltas, done, error };
 }
 
+// ── Groq direct config (works on static hosting without a Node.js server) ──
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
+const GROQ_MODEL  = import.meta.env.VITE_GROQ_MODEL  || "llama-3.1-8b-instant";
+const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
+
+const SYSTEM_PROMPT = `You are an AI assistant representing Mian Khan, an ML engineer based in Lahore, Pakistan.
+Your job is to answer questions from recruiters, employers, and collaborators about Mian Khan's background, skills, projects, and availability.
+Be concise, professional, and friendly.
+
+STRICT FORMATTING RULES:
+- Use structured Markdown (bullet points, bold text, headers).
+- NEVER use large blocks of text.
+- Use bolding for key tech stack items and metrics.
+- Break down information into clear, scannable sections.
+
+About Mian Khan:
+- Specializes in **ML pipelines**, **model deployment**, and **AI infrastructure**
+- Has deployed **50+ models** (actually 10+ production AI systems) across automation, RAG, and agent workflows
+- Achieved **70%+ reduction** in manual operational workload through process automation
+- **40% faster inference** through optimized pipelines and model tuning
+- Built **5+ end-to-end ML pipelines** from data ingestion to monitoring
+- Maintains **99.9% uptime** across monitored systems
+
+Core Stack: **Python**, **PyTorch**, **PostgreSQL**, **FastAPI**, **TypeScript**, **LangChain**, **Docker**, **React.js**, **Node.js**, **Next.js**, **Vue.js**
+
+AI/ML Expertise:
+- **LLM Systems**: Production-grade LLM pipelines and workflows
+- **Multi-Agent Orchestration**: Autonomous agent systems that collaborate and execute tasks
+- **RAG**: Context-aware AI with vector search and knowledge grounding
+- **AI Automation**: Replacing manual workflows with intelligent end-to-end systems
+- **Model Integration & APIs**: OpenAI, open-source models, and tool integrations
+- **Scalable AI Architecture**: Reliable, maintainable, and scalable AI systems
+
+Key Projects:
+- **AI-Powered Business Incubator**: Orchestrates 9 AI agents for startup asset generation (LangGraph, Python, React, OpenAI). 99% time reduction, 15k+ assets generated.
+- **Privacy-First AI Chat Platform**: GDPR-compliant chatbot with <100ms latency, PII scrubbing, multi-provider LLM routing (React, FastAPI, Stripe). Zero data leaks with 500+ beta users.
+- **AI Content Automation Platform**: End-to-end SEO publishing workflow reducing manual effort by 90% (LangGraph, WordPress API).
+- **Fake Job Posting Detection**: BiLSTM model achieving 98.22% detection accuracy (Python, TensorFlow, NLP).
+- **RAG Agent**: High-precision retrieval system with sub-second latency (FAISS, LangChain, FastAPI).
+- **SJL Bot**: AI Credit Assistant processing 50+ daily queries (n8n, OpenAI, Telegram API).
+
+Engineering Philosophy:
+- **Production over Demos**: Builds robust, scalable systems, not just Jupyter notebooks. Replaced a Jupyter POC with a monitored FastAPI service handling 10k requests/day.
+- **Human-in-the-loop**: Designs systems that augment human intelligence. Built review interfaces improving labeling accuracy by 40%.
+- **Data-Centric AI**: Prioritizes data quality, versioning, and lineage. Implemented DVC pipelines detecting data drift.
+
+Currently Learning: Advanced RAG Architectures (75%), LLM Fine-tuning at Scale with LoRA/QLoRA (60%), MLOps with Kubernetes (85%).
+
+- Open to freelance projects, consulting, and full-time remote roles
+- Based in Lahore, PK — available for international remote work
+- Booking link: https://calendly.com/miankhan-dev/30min
+
+When someone asks to book a call or schedule a meeting, ALWAYS share the booking link https://calendly.com/miankhan-dev/30min and ask for their preferred time zone.`;
+
 export function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -121,62 +175,77 @@ export function AIChatBot() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/chat", {
+      // Build conversation history for the API
+      const chatHistory = messages
+        .filter((m) => (m.role === "user" || m.role === "assistant") && m.content.trim().length > 0)
+        .map((m) => ({ role: m.role, content: m.content }));
+
+      // Call Groq API directly from the browser
+      const response = await fetch(GROQ_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+        },
         body: JSON.stringify({
+          model: GROQ_MODEL,
           messages: [
-            ...messages
-              .filter((m) => (m.role === "user" || m.role === "assistant") && m.content.trim().length > 0)
-              .map((m) => ({ role: m.role, content: m.content })),
-            { role: "user", content: text }
-          ]
-        })
+            { role: "system", content: SYSTEM_PROMPT },
+            ...chatHistory,
+            { role: "user", content: text },
+          ],
+          stream: true,
+        }),
       });
 
       if (!response.ok) {
-        const errText = await response.text().catch(() => "");
-        throw new Error(errText || "Failed to connect to AI.");
+        const errBody = await response.text().catch(() => "");
+        throw new Error(errBody || `Groq API returned ${response.status}`);
       }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let botContent = "";
-      
+
       const botMessage: Message = {
         role: "assistant",
         content: "",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      
+
       setMessages(prev => [...prev, botMessage]);
-      setIsLoading(false); // Stop "loading" once stream starts
+      setIsLoading(false);
 
       if (reader) {
         let buffer = "";
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
 
-          // Parse incrementally: SSE events separated by \n\n, JSONL by \n
-          const splitOn = buffer.includes("\n\n") ? "\n\n" : "\n";
-          const parts = buffer.split(splitOn);
-          buffer = parts.pop() || "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || !trimmed.startsWith("data:")) continue;
+            const payload = trimmed.slice(5).trim();
+            if (payload === "[DONE]") break;
 
-          for (const part of parts) {
-            const { deltas, done: isDone, error } = parseSseDeltas(part + splitOn);
-            if (error) throw new Error(error);
-            if (deltas.length) {
-              for (const d of deltas) botContent += d;
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                const others = prev.slice(0, -1);
-                return [...others, { ...last, content: botContent }];
-              });
+            try {
+              const json = JSON.parse(payload);
+              const delta = json?.choices?.[0]?.delta?.content;
+              if (typeof delta === "string" && delta.length) {
+                botContent += delta;
+                setMessages(prev => {
+                  const last = prev[prev.length - 1];
+                  const others = prev.slice(0, -1);
+                  return [...others, { ...last, content: botContent }];
+                });
+              }
+            } catch {
+              // ignore non-JSON lines
             }
-            if (isDone) return;
           }
         }
       }
@@ -186,7 +255,7 @@ export function AIChatBot() {
       const errorMessage: Message = {
         role: "assistant",
         content: `Error: ${error.message || "I couldn't generate a response right now. Please try again later."}`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages(prev => [...prev, errorMessage]);
     }
