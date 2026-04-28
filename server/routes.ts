@@ -287,7 +287,7 @@ About Mian Khan:
 - Tech stack: **Python**, **PyTorch**, **TensorFlow**, **Kubernetes**, **Docker**, **MLflow**, **Airflow**, **FastAPI**
 - Open to freelance projects, consulting, and full-time remote roles
 - Based in Lahore, PK — available for international remote work
-- Booking link: https://calendly.com/miankhan-ai
+- Booking link: https://calendly.com/miankhan-dev/30min
 
 When someone asks to book a call or schedule a meeting, share the booking link above and ask for their preferred time zone.`;
 
