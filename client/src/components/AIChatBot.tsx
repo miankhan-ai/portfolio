@@ -290,9 +290,11 @@ export function AIChatBot() {
                               : "bg-[#8B00FF] text-white rounded-br-none shadow-lg shadow-[#8B00FF]/10"}
                           `}>
                             {msg.role === "assistant" ? (
-                              <ReactMarkdown className={`prose prose-sm max-w-none ${chatTheme === "dark" ? "prose-invert text-white/90" : "text-slate-800"}`}>
-                                {msg.content}
-                              </ReactMarkdown>
+                              <div className={`prose prose-sm max-w-none ${chatTheme === "dark" ? "prose-invert text-white/90" : "text-slate-800"}`}>
+                                <ReactMarkdown>
+                                  {msg.content}
+                                </ReactMarkdown>
+                              </div>
                             ) : (
                               msg.content
                             )}
