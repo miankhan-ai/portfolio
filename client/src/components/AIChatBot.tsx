@@ -125,7 +125,7 @@ export function AIChatBot() {
         body: JSON.stringify({
           messages: [
             ...messages
-              .filter((m) => m.role === "user" || m.role === "assistant")
+              .filter((m) => (m.role === "user" || m.role === "assistant") && m.content.trim().length > 0)
               .map((m) => ({ role: m.role, content: m.content })),
             { role: "user", content: text }
           ]
