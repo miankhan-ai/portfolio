@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 export function Navbar() {
@@ -45,13 +44,13 @@ export function Navbar() {
             </a>
           ))}
 
-          <ThemeToggle />
+          {/* Removed ThemeToggle */}
 
           <a
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 text-xs font-mono font-bold bg-primary/10 text-primary border border-primary/20 rounded hover:bg-primary/20 transition-all"
+            className="px-4 py-2 text-xs font-mono font-bold bg-primary/10 text-white border border-primary/20 rounded hover:bg-primary/20 transition-all"
           >
             RESUME.PDF
           </a>
@@ -59,7 +58,7 @@ export function Navbar() {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-4 md:hidden">
-          <ThemeToggle />
+          {/* Removed ThemeToggle */}
           <Button
             variant="ghost"
             size="icon"

@@ -51,6 +51,26 @@ export const api = {
       },
     },
   },
+  chat: {
+    complete: {
+      method: 'POST' as const,
+      path: '/api/chat' as const,
+      input: z.object({
+        messages: z
+          .array(
+            z.object({
+              role: z.enum(['user', 'assistant']),
+              content: z.string().min(1),
+            }),
+          )
+          .min(1),
+      }),
+      responses: {
+        200: z.any(),
+        400: errorSchemas.validation,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@1,500;1,600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -133,6 +133,27 @@
   .theme-logo {
     filter: var(--logo-filter);
     transition: filter 0.3s ease;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .animate-cursor-blink {
+    animation: blink 1s step-end infinite;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .chat-glow {
+    box-shadow: 0 0 40px 10px rgba(139, 0, 255, 0.5);
   }
 }
 

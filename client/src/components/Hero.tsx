@@ -1,8 +1,35 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, BrainCircuit, Code2, Database } from "lucide-react";
+import { ArrowRight, BrainCircuit, Code2, Database, Terminal, Zap, Box, Sparkles, Layout, Server, Globe, Layers } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Hero() {
+  const roles = [
+    "Generative AI & Agentic AI Systems",
+    "LLM Fine-tuning & RAG Pipelines",
+    "Scalable ML Infrastructure",
+    "Full-Stack AI Solutions"
+  ];
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [reverse, setReverse] = useState(false);
+
+  useEffect(() => {
+    if (subIndex === roles[index].length + 1 && !reverse) {
+      setTimeout(() => setReverse(true), 2000);
+      return;
+    }
+    if (subIndex === 0 && reverse) {
+      setReverse(false);
+      setIndex((prev) => (prev + 1) % roles.length);
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setSubIndex((prev) => prev + (reverse ? -1 : 1));
+    }, reverse ? 50 : 100);
+    return () => clearTimeout(timeout);
+  }, [subIndex, index, reverse]);
+
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-gradient-to-b from-background via-background to-secondary/20">
       {/* Professional Gradient Mesh Background */}
@@ -62,8 +89,8 @@ export function Hero() {
                 </span>
 
                 {/* Text with hover effect */}
-                <span className="relative z-10 group-hover:text-green-300 transition-colors duration-300">
-                  Available for new projects
+                <span className="relative z-10 group-hover:text-green-300 transition-colors duration-300 flex items-center gap-2">
+                  Available Now<span className="w-1 h-1 rounded-full bg-green-500/50" /> Based in Pakistan
                 </span>
 
                 {/* Sparkle effect on hover */}
@@ -82,27 +109,30 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-6xl md:text-8xl font-extrabold tracking-tight mb-8 leading-[1.1]"
+              className="text-4xl md:text-6xl font-extrabold tracking-tight mb-8 leading-[1.2]"
             >
-              Architecting the <span className="text-gradient">Intelligent</span> Future
+              AI/ML Engineer <span className="text-white font-light text-xl md:text-2xl block mt-2 tracking-normal italic">Available for on-site or remote roles</span>
+              <span className="text-gradient block mt-2 text-2xl md:text-3xl min-h-[1.5em]">
+                Generative AI & Agentic AI Systems
+              </span>
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-2xl md:text-3xl text-foreground font-medium mb-6 max-w-2xl leading-relaxed text-balance"
+              className="text-lg md:text-xl text-foreground font-medium mb-4 max-w-2xl leading-relaxed text-balance"
             >
-              I help startups and teams deploy production-ready AI systems that reduce costs, automate workflows, and scale reliably.
+              Designing scalable AI architectures that automate workflows and drive measurable business impact.
             </motion.p>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="text-lg text-muted-foreground mb-10 max-w-2xl leading-relaxed prose-relaxed"
+              className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed"
             >
-              Bridging the gap between cutting-edge research and mission-critical software. I don't just build models; I build businesses.
+              Transforming complex AI research into robust, production-ready software for modern enterprises.
             </motion.p>
 
             <motion.div
@@ -162,13 +192,37 @@ export function Hero() {
           <span className="font-mono text-xs uppercase tracking-wider whitespace-nowrap">Core Stack:</span>
           <div className="flex gap-8">
             <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Terminal className="w-5 h-5" /> Python
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
               <BrainCircuit className="w-5 h-5" /> PyTorch
             </div>
             <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
               <Database className="w-5 h-5" /> PostgreSQL
             </div>
             <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Zap className="w-5 h-5" /> FastAPI
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
               <Code2 className="w-5 h-5" /> TypeScript
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Sparkles className="w-5 h-5" /> LangChain
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Box className="w-5 h-5" /> Docker
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Layout className="w-5 h-5" /> React.js
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Server className="w-5 h-5" /> Node.js
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Globe className="w-5 h-5" /> Next.js
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
+              <Layers className="w-5 h-5" /> Vue.js
             </div>
           </div>
         </motion.div>

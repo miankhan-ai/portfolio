@@ -32,7 +32,7 @@ export function SkillCard({ skill, index }: SkillCardProps) {
         {skill.items.map((item) => (
           <span
             key={item}
-            className="px-3 py-1.5 rounded bg-white/5 text-sm font-medium text-muted-foreground border border-white/5 hover:text-foreground hover:border-primary/20 transition-all cursor-default"
+            className="px-3 py-1.5 rounded bg-secondary/50 text-sm font-medium text-muted-foreground border border-secondary hover:text-foreground hover:border-primary/20 transition-all cursor-default"
           >
             {item}
           </span>

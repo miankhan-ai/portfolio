@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, MessageSquare } from "lucide-react";
 
 export function ContactForm() {
   const { mutate, isPending } = useContact();
@@ -16,6 +16,7 @@ export function ContactForm() {
     defaultValues: {
       name: "",
       email: "",
+      company: "",
       message: "",
     },
   });
@@ -29,82 +30,108 @@ export function ContactForm() {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="p-2.5 rounded-lg bg-[#7B2FBE] text-white">
+          <MessageSquare className="w-5 h-5" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-900">Send us a message</h3>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-foreground/80">Name</FormLabel>
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-sm font-semibold text-slate-700">Full Name</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Jane Doe"
+                    placeholder="John Doe"
                     {...field}
-                    className="bg-secondary/30 border-white/10 focus:border-primary/50 min-h-[50px]"
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-foreground/80">Email</FormLabel>
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-sm font-semibold text-slate-700">Email Address</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="jane@example.com"
+                    placeholder="john@company.com"
                     type="email"
                     {...field}
-                    className="bg-secondary/30 border-white/10 focus:border-primary/50 min-h-[50px]"
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all"
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
 
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-foreground/80">Message</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Tell me about your project..."
-                  className="bg-secondary/30 border-white/10 focus:border-primary/50 min-h-[150px] resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="company"
+            render={({ field }) => (
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-sm font-semibold text-slate-700">Company</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Your Company"
+                    {...field}
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full md:w-auto px-8 py-6 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            <>
-              Start a Conversation
-              <Send className="ml-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
-      </form>
-    </Form>
+          <FormField
+            control={form.control}
+            name="message"
+            render={({ field }) => (
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-sm font-semibold text-slate-700">Message</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Tell us about your project..."
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 min-h-[160px] rounded-xl transition-all resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full py-6 text-base font-bold bg-[#7B2FBE] hover:bg-[#6a28a4] text-white rounded-xl shadow-lg shadow-[#7B2FBE]/20 transition-all group"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                Send Message
+                <Send className="w-5 h-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+              </div>
+            )}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }

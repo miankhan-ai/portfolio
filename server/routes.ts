@@ -203,5 +203,236 @@ export async function registerRoutes(
     }
   });
 
+  app.post(api.chat.complete.path, async (req, res) => {
+    const inputSchema = api.chat.complete.input ?? z.any();
+
+    const parsed = inputSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        message: parsed.error.errors[0]?.message || "Invalid request",
+        field: parsed.error.errors[0]?.path?.join("."),
+      });
+    }
+
+    const { messages } = parsed.data;
+    const userText = [...messages].reverse().find((m: any) => m.role === "user")?.content ?? "";
+
+    // Build a grounded context from DB content
+    const [projects, skills] = await Promise.all([
+      storage.getProjects(),
+      storage.getSkills(),
+    ]);
+
+    const q = userText.toLowerCase();
+    const tokenize = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9\s+#.-]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+    const qTokens = new Set(tokenize(q));
+
+    const scoreText = (text: string) => {
+      const tokens = tokenize(text);
+      let score = 0;
+      for (const t of tokens) if (qTokens.has(t)) score += 1;
+      return score;
+    };
+
+    const topProjects = [...projects]
+      .map((p) => ({
+        p,
+        score:
+          scoreText(p.title) * 3 +
+          scoreText(p.summary) * 2 +
+          scoreText(p.description) +
+          scoreText(p.techStack.join(" ")) * 2,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map(({ p }) => p);
+
+    const topSkills = [...skills]
+      .map((s) => ({
+        s,
+        score: scoreText(s.category) * 2 + scoreText(s.items.join(" ")) * 2,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4)
+      .map(({ s }) => s);
+
+    const baseSystem = `You are an AI assistant representing Mian Khan, an ML engineer based in Lahore, Pakistan.
+Your job is to answer questions from recruiters, employers, and collaborators about Mian Khan's background, skills, projects, and availability.
+Be concise, professional, and friendly. If you don't know something, say so and offer the best next step (e.g., suggest a call or ask a clarifying question).
+
+Key facts:
+- Specializes in ML pipelines, model deployment, and AI infrastructure
+- Has deployed 50+ models in production environments
+- Achieved 95% automation of manual processes and 98% error reduction across pipelines
+- Maintains 99.9% uptime across monitored systems
+- Tech stack: Python, PyTorch, TensorFlow, Kubernetes, Docker, MLflow, Airflow, FastAPI
+- Open to freelance projects, consulting, and full-time remote roles
+- Based in Lahore, PK — available for international remote work
+- Booking link: https://calendly.com/miankhan-ai
+
+When someone asks to book a call or schedule a meeting, share the booking link and ask for their preferred time zone.`;
+
+    const groundedContext = `Portfolio context (use this to stay relevant; do not invent projects/claims not present here):
+
+Top projects:
+${topProjects
+  .map(
+    (p) =>
+      `- ${p.title}: ${p.summary}\n  Tech: ${p.techStack.join(", ")}\n  Details: ${p.description}`,
+  )
+  .join("\n")}
+
+Top skills:
+${topSkills.map((s) => `- ${s.category}: ${s.items.join(", ")}`).join("\n")}
+`;
+
+    const system = `${baseSystem}\n\n${groundedContext}`;
+
+    const provider = (process.env.AI_PROVIDER || "openai").toLowerCase();
+    const model =
+      process.env.AI_MODEL ||
+      (provider === "ollama" ? "llama3" : "gpt-4o-mini");
+
+    // Stream back as SSE
+    res.status(200);
+    res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+
+    const sendDelta = (delta: string) => {
+      res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+    };
+    const sendDone = () => {
+      res.write(`event: done\ndata: {}\n\n`);
+      res.end();
+    };
+
+    try {
+      if (provider === "ollama") {
+        const ollamaUrl = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
+        const r = await fetch(`${ollamaUrl}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: system },
+              ...messages.map((m: any) => ({ role: m.role, content: m.content })),
+            ],
+            stream: true,
+          }),
+        });
+
+        if (!r.ok || !r.body) {
+          const text = await r.text().catch(() => "");
+          throw new Error(`Ollama error ${r.status}: ${text}`);
+        }
+
+        const reader = r.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            try {
+              const data = JSON.parse(trimmed);
+              const delta = data?.message?.content;
+              if (typeof delta === "string" && delta.length) sendDelta(delta);
+              if (data?.done) {
+                sendDone();
+                return;
+              }
+            } catch {
+              // ignore malformed chunks
+            }
+          }
+        }
+
+        sendDone();
+        return;
+      }
+
+      // OpenAI-compatible providers (OpenAI/Groq/Together/etc.)
+      const baseUrl = (process.env.AI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+      const apiKey = process.env.AI_API_KEY;
+      if (!apiKey) throw new Error("Missing AI_API_KEY");
+
+      const r = await fetch(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.3,
+          stream: true,
+          messages: [
+            { role: "system", content: system },
+            ...messages.map((m: any) => ({ role: m.role, content: m.content })),
+          ],
+        }),
+      });
+
+      if (!r.ok || !r.body) {
+        const text = await r.text().catch(() => "");
+        throw new Error(`Provider error ${r.status}: ${text}`);
+      }
+
+      const reader = r.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE parsing
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() || "";
+        for (const part of parts) {
+          const lines = part.split("\n");
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const payload = trimmed.slice(5).trim();
+            if (payload === "[DONE]") {
+              sendDone();
+              return;
+            }
+            try {
+              const json = JSON.parse(payload);
+              const delta = json?.choices?.[0]?.delta?.content;
+              if (typeof delta === "string" && delta.length) sendDelta(delta);
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+
+      sendDone();
+    } catch (e: any) {
+      const msg = e?.message || "Chat error";
+      res.write(`event: error\ndata: ${JSON.stringify({ message: msg })}\n\n`);
+      res.end();
+    }
+  });
+
   return httpServer;
 }

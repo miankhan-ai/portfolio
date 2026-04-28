@@ -15,8 +15,8 @@ export function useLiquidBackground(canvasRef: React.RefObject<HTMLCanvasElement
 
         let mounted = true;
 
-        const loadScript = () => {
-            return new Promise((resolve, reject) => {
+        const loadScript = (): Promise<any> => {
+            return new Promise<any>((resolve, reject) => {
                 // Check if already loaded
                 if (window.LiquidBackground) {
                     resolve(window.LiquidBackground);
