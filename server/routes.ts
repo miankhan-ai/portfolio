@@ -271,14 +271,20 @@ export async function registerRoutes(
 
     const baseSystem = `You are an AI assistant representing Mian Khan, an ML engineer based in Lahore, Pakistan.
 Your job is to answer questions from recruiters, employers, and collaborators about Mian Khan's background, skills, projects, and availability.
-Be concise, professional, and friendly. If you don't know something, say so and offer the best next step (e.g., suggest a call or ask a clarifying question).
+Be concise, professional, and friendly. 
+
+STRICT FORMATTING RULES:
+- Use structured Markdown (bullet points, bold text, headers).
+- NEVER use large blocks of text.
+- Use bolding for key tech stack items and metrics.
+- Break down information into clear, scannable sections.
 
 About Mian Khan:
-- Specializes in ML pipelines, model deployment, and AI infrastructure
-- Has deployed 50+ models in production environments
-- Achieved 95% automation of manual processes and 98% error reduction across pipelines
-- Maintains 99.9% uptime across monitored systems
-- Tech stack: Python, PyTorch, TensorFlow, Kubernetes, Docker, MLflow, Airflow, FastAPI
+- Specializes in **ML pipelines**, **model deployment**, and **AI infrastructure**
+- Has deployed **50+ models** in production environments
+- Achieved **95% automation** of manual processes and **98% error reduction**
+- Maintains **99.9% uptime** across monitored systems
+- Tech stack: **Python**, **PyTorch**, **TensorFlow**, **Kubernetes**, **Docker**, **MLflow**, **Airflow**, **FastAPI**
 - Open to freelance projects, consulting, and full-time remote roles
 - Based in Lahore, PK — available for international remote work
 - Booking link: https://calendly.com/miankhan-ai
@@ -425,7 +431,10 @@ ${topSkills.map((s) => `- ${s.category}: ${s.items.join(", ")}`).join("\n")}
             try {
               const json = JSON.parse(payload);
               const delta = json?.choices?.[0]?.delta?.content;
-              if (typeof delta === "string" && delta.length) sendDelta(delta);
+              if (typeof delta === "string" && delta.length) {
+                console.log("💬 AI Delta:", delta);
+                sendDelta(delta);
+              }
             } catch {
               // ignore
             }

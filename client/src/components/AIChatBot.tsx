@@ -11,6 +11,7 @@ import {
   Moon,
   Loader2,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -288,7 +289,13 @@ export function AIChatBot() {
                               ? (chatTheme === "dark" ? "bg-[#1E1E1E] text-white rounded-bl-none" : "bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200") 
                               : "bg-[#8B00FF] text-white rounded-br-none shadow-lg shadow-[#8B00FF]/10"}
                           `}>
-                            {msg.content}
+                            {msg.role === "assistant" ? (
+                              <ReactMarkdown className={`prose prose-sm max-w-none ${chatTheme === "dark" ? "prose-invert text-white/90" : "text-slate-800"}`}>
+                                {msg.content}
+                              </ReactMarkdown>
+                            ) : (
+                              msg.content
+                            )}
                           </div>
                           <span className={`text-[10px] ${chatTheme === "dark" ? "text-white/40" : "text-slate-400"} mt-1.5 px-2`}>
                             {msg.timestamp}
