@@ -178,12 +178,12 @@ export function AIChatBot() {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
       setIsLoading(false);
       const errorMessage: Message = {
         role: "assistant",
-        content: "Sorry — I couldn’t generate a response right now. Please try again in a moment.",
+        content: `Error: ${error.message || "I couldn't generate a response right now. Please try again later."}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, errorMessage]);

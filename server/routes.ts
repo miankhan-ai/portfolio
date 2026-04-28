@@ -104,28 +104,35 @@ export async function registerRoutes(
   seedDatabase();
 
   // Configure nodemailer
-  let transporter = null;
+  let transporter: nodemailer.Transporter | null = null;
 
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+  const getTransporter = () => {
+    if (transporter) return transporter;
+    
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+      return transporter;
+    }
+    return null;
+  };
 
-    transporter.verify((error, success) => {
+  // Initial check
+  if (getTransporter()) {
+    transporter!.verify((error) => {
       if (error) {
         console.error("❌ Email service connection error:", error.message);
-        console.log("📧 Current EMAIL_USER:", process.env.EMAIL_USER);
-        console.log("📧 Email credentials found but connection failed. Make sure you are using an App Password.");
       } else {
         console.log("✅ Email service is ready to send messages via Gmail");
       }
     });
   } else {
-    console.warn("⚠️  Email service not configured. Set EMAIL_USER and EMAIL_PASS environment variables to enable contact form emails.");
+    console.warn("⚠️  Email service not configured. Ensure EMAIL_USER and EMAIL_PASS are set in your deployment environment.");
   }
 
   app.get(api.projects.list.path, async (_req, res) => {
@@ -176,18 +183,18 @@ export async function registerRoutes(
       console.log('==========================================\n');
 
       // Send email if configured
-      if (transporter) {
+      const currentTransporter = getTransporter();
+      if (currentTransporter) {
         try {
-          console.log(`📤 Attempting to send email to miankhan.dev@gmail.com...`);
-          const info = await transporter.sendMail(emailContent);
+          console.log(`📤 Attempting to send email to ${process.env.EMAIL_USER}...`);
+          const info = await currentTransporter.sendMail(emailContent);
           console.log(`✅ Email sent successfully! Message ID: ${info.messageId}`);
         } catch (mailError: any) {
           console.error("❌ Error sending email:", mailError.message);
-          console.error("Full error:", mailError);
           // We don't fail the request if email fails, as message is already saved in DB
         }
       } else {
-        console.log("⚠️  Email transporter not configured - email logged above");
+        console.warn("⚠️ Email not sent: EMAIL_USER or EMAIL_PASS not set in environment.");
       }
 
       res.status(201).json({ success: true, message: "Message sent successfully" });
@@ -198,7 +205,8 @@ export async function registerRoutes(
           field: err.errors[0].path.join('.'),
         });
       }
-      throw err;
+      console.error("❌ Submission error:", err);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -427,6 +435,8 @@ ${topSkills.map((s) => `- ${s.category}: ${s.items.join(", ")}`).join("\n")}
 
       sendDone();
     } catch (e: any) {
+      console.error("❌ Chat API error:", e.message);
+      if (e.stack) console.error(e.stack);
       const msg = e?.message || "Chat error";
       res.write(`event: error\ndata: ${JSON.stringify({ message: msg })}\n\n`);
       res.end();
