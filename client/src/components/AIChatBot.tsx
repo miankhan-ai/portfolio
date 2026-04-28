@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -291,7 +292,19 @@ export function AIChatBot() {
                           `}>
                             {msg.role === "assistant" ? (
                               <div className={`prose prose-sm max-w-none ${chatTheme === "dark" ? "prose-invert text-white/90" : "text-slate-800"}`}>
-                                <ReactMarkdown>
+                                <ReactMarkdown 
+                                  remarkPlugins={[remarkGfm]}
+                                  components={{
+                                    a: ({ node, ...props }) => (
+                                      <a 
+                                        {...props} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="text-[#8B00FF] font-bold underline hover:text-[#7B2FBE] transition-colors"
+                                      />
+                                    )
+                                  }}
+                                >
                                   {msg.content}
                                 </ReactMarkdown>
                               </div>
