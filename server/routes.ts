@@ -265,7 +265,7 @@ export async function registerRoutes(
 Your job is to answer questions from recruiters, employers, and collaborators about Mian Khan's background, skills, projects, and availability.
 Be concise, professional, and friendly. If you don't know something, say so and offer the best next step (e.g., suggest a call or ask a clarifying question).
 
-Key facts:
+About Mian Khan:
 - Specializes in ML pipelines, model deployment, and AI infrastructure
 - Has deployed 50+ models in production environments
 - Achieved 95% automation of manual processes and 98% error reduction across pipelines
@@ -275,7 +275,7 @@ Key facts:
 - Based in Lahore, PK — available for international remote work
 - Booking link: https://calendly.com/miankhan-ai
 
-When someone asks to book a call or schedule a meeting, share the booking link and ask for their preferred time zone.`;
+When someone asks to book a call or schedule a meeting, share the booking link above and ask for their preferred time zone.`;
 
     const groundedContext = `Portfolio context (use this to stay relevant; do not invent projects/claims not present here):
 
