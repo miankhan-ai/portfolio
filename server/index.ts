@@ -89,17 +89,26 @@ app.use((req, res, next) => {
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
+  // Other ports are firewalled. Default to 5050 if not specified.
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
+  const port = parseInt(process.env.PORT || "5050", 10);
+  
+  httpServer.on("error", (err: any) => {
+    if (err.code === "EADDRINUSE") {
+      log(`Port ${port} is already in use. Retrying with port ${port + 1}...`);
+      httpServer.listen(port + 1, "0.0.0.0");
+    } else {
+      console.error("Server error:", err);
+    }
+  });
+
   httpServer.listen(
     {
       port,
       host: "0.0.0.0",
     },
     () => {
-      log(`serving on port ${port}`);
+      log(`serving on port ${httpServer.address() && typeof httpServer.address() !== 'string' ? (httpServer.address() as any).port : port}`);
     },
   );
 })();

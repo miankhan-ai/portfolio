@@ -50,7 +50,7 @@ export function ContactForm() {
                   <Input
                     placeholder="John Doe"
                     {...field}
-                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all"
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all text-slate-900"
                   />
                 </FormControl>
                 <FormMessage />
@@ -69,7 +69,7 @@ export function ContactForm() {
                     placeholder="john@company.com"
                     type="email"
                     {...field}
-                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all"
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all text-slate-900"
                   />
                 </FormControl>
                 <FormMessage />
@@ -87,7 +87,7 @@ export function ContactForm() {
                   <Input
                     placeholder="Your Company"
                     {...field}
-                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all"
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 h-12 rounded-xl transition-all text-slate-900"
                   />
                 </FormControl>
                 <FormMessage />
@@ -104,7 +104,7 @@ export function ContactForm() {
                 <FormControl>
                   <Textarea
                     placeholder="Tell us about your project..."
-                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 min-h-[160px] rounded-xl transition-all resize-none"
+                    className="bg-white border-slate-200 focus:border-[#7B2FBE] focus:ring-[#7B2FBE]/20 min-h-[160px] rounded-xl transition-all resize-none text-slate-900"
                     {...field}
                   />
                 </FormControl>

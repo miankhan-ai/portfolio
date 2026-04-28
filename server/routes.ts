@@ -108,24 +108,20 @@ export async function registerRoutes(
 
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false
-      }
     });
 
     transporter.verify((error, success) => {
       if (error) {
-        console.error("❌ Email service connection error:", error);
-        console.log("📧 Email credentials found but connection failed. Emails will be logged to console instead.");
+        console.error("❌ Email service connection error:", error.message);
+        console.log("📧 Current EMAIL_USER:", process.env.EMAIL_USER);
+        console.log("📧 Email credentials found but connection failed. Make sure you are using an App Password.");
       } else {
-        console.log("✅ Email service is ready to send messages");
+        console.log("✅ Email service is ready to send messages via Gmail");
       }
     });
   } else {
@@ -157,14 +153,17 @@ export async function registerRoutes(
 
       // Prepare email content
       const emailContent = {
-        from: process.env.EMAIL_USER || 'noreply@portfolio.dev',
-        to: "miankhan.dev@gmail.com",
+        from: `"${input.name}" <${process.env.EMAIL_USER}>`,
+        to: process.env.EMAIL_USER,
+        replyTo: input.email,
         subject: `New Portfolio Message from ${input.name}`,
-        text: `Name: ${input.name}\nEmail: ${input.email}\n\nMessage:\n${input.message}`,
+        text: `Name: ${input.name}\nEmail: ${input.email}\nCompany: ${input.company || 'N/A'}\n\nMessage:\n${input.message}`,
         html: `
           <h3>New Portfolio Message</h3>
           <p><strong>Name:</strong> ${input.name}</p>
           <p><strong>Email:</strong> ${input.email}</p>
+          <p><strong>Company:</strong> ${input.company || 'N/A'}</p>
+          <hr />
           <p><strong>Message:</strong></p>
           <p>${input.message.replace(/\n/g, '<br>')}</p>
         `,
