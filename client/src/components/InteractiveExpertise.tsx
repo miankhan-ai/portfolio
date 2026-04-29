@@ -56,6 +56,20 @@ const expertiseSkills = [
 ];
 
 export function InteractiveExpertise() {
+  const [activeIndex, setActiveIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    // Highlight faster on mobile (1.5s) compared to desktop (3s)
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const intervalDuration = isMobile ? 1500 : 3000;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % expertiseSkills.length);
+    }, intervalDuration);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="pt-24 pb-40 relative overflow-hidden bg-[#0a0515]">
       {/* Background Effects */}
@@ -98,20 +112,20 @@ export function InteractiveExpertise() {
         </div>
 
         {/* Circular Layout Container */}
-        <div className="relative flex items-center justify-center min-h-[600px] py-10">
+        <div className="relative flex flex-col items-center justify-center min-h-[600px] py-10">
           {/* Center Identity Node */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            className="relative z-20 flex flex-col items-center justify-center w-48 h-48 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 shadow-[0_0_50px_rgba(168,85,247,0.5)] border-4 border-white/10"
+            className="relative z-20 flex shrink-0 flex-col items-center justify-center w-48 h-48 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 shadow-[0_0_50px_rgba(168,85,247,0.5)] border-4 border-white/10 mb-12 lg:mb-0"
           >
             <div className="absolute inset-0 rounded-full animate-pulse bg-purple-500/20" />
             <Cpu className="w-10 h-10 text-white mb-2" />
             <span className="text-xl font-bold text-white tracking-tight">AI Engineer</span>
           </motion.div>
 
-          {/* Connection Lines (Desktop only for better visual) */}
+          {/* Connection Lines (Desktop only) */}
           <div className="absolute inset-0 hidden lg:block pointer-events-none">
             <svg className="w-full h-full" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
               <defs>
@@ -123,7 +137,8 @@ export function InteractiveExpertise() {
               {expertiseSkills.map((_, i) => {
                 const angle = (i * 360) / expertiseSkills.length;
                 const radian = (angle * Math.PI) / 180;
-                const r = 300; // should match distance in cards
+                const r = 300;
+                const isActive = activeIndex === i;
                 return (
                   <motion.line
                     key={i}
@@ -131,30 +146,31 @@ export function InteractiveExpertise() {
                     y1="500"
                     x2={500 + Math.cos(radian) * r}
                     y2={500 + Math.sin(radian) * r}
-                    stroke="url(#lineGradient)"
-                    strokeWidth="1.5"
+                    stroke={isActive ? "url(#lineGradient)" : "rgba(255,255,255,0.05)"}
+                    strokeWidth={isActive ? "2.5" : "1"}
                     strokeDasharray="5,5"
                     initial={{ pathLength: 0, opacity: 0 }}
-                    whileInView={{ pathLength: 1, opacity: 0.4 }}
+                    whileInView={{ pathLength: 1, opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 1.5, delay: 0.5 }}
+                    className="transition-all duration-500"
                   />
                 );
               })}
             </svg>
           </div>
 
-          {/* Skill Cards in Circle */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          {/* Skill Cards in Circle (Desktop) */}
+          <div className="absolute inset-0 hidden lg:flex items-center justify-center">
             {expertiseSkills.map((skill, i) => {
               const angle = (i * 360) / expertiseSkills.length;
               const radian = (angle * Math.PI) / 180;
-              const distance = 300; // base distance
+              const distance = 300;
               
               return (
                 <motion.div
                   key={skill.id}
-                  className="absolute lg:block hidden"
+                  className="absolute"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ 
                     opacity: 1, 
@@ -169,25 +185,24 @@ export function InteractiveExpertise() {
                     damping: 20,
                     delay: 0.3 + i * 0.1 
                   }}
+                  onMouseEnter={() => setActiveIndex(i)}
                 >
-                  <ExpertiseCard skill={skill} />
+                  <ExpertiseCard skill={skill} isActive={activeIndex === i} />
                 </motion.div>
               );
             })}
           </div>
 
-          {/* Grid Layout for Mobile/Tablet */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:hidden w-full relative z-30">
+          {/* List Layout for Mobile/Tablet */}
+          <div className="flex flex-col gap-4 lg:hidden w-full relative z-30 max-w-xl mx-auto">
             {expertiseSkills.map((skill, i) => (
-              <motion.div
-                key={skill.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <ExpertiseCard skill={skill} />
-              </motion.div>
+              <MobileExpertiseCard 
+                key={skill.id} 
+                skill={skill} 
+                index={i} 
+                isActive={activeIndex === i} 
+                onClick={() => setActiveIndex(i)}
+              />
             ))}
           </div>
         </div>
@@ -196,29 +211,88 @@ export function InteractiveExpertise() {
   );
 }
 
-function ExpertiseCard({ skill }: { skill: typeof expertiseSkills[0] }) {
+function ExpertiseCard({ skill, isActive }: { skill: typeof expertiseSkills[0], isActive: boolean }) {
   const Icon = skill.icon;
   
   return (
     <motion.div
       whileHover={{ y: -5, scale: 1.02 }}
-      className="group relative w-72 h-auto"
+      className="group relative w-72 h-auto cursor-pointer"
     >
       {/* Card Background with Glow */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500" />
+      <div className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur transition duration-500 ${isActive ? 'opacity-100' : 'opacity-30 group-hover:opacity-100'}`} />
       
-      <div className="relative flex flex-col p-6 rounded-2xl bg-[#120b25]/80 backdrop-blur-xl border border-white/10 group-hover:border-purple-500/50 transition-all duration-300">
-        <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center bg-gradient-to-br ${skill.color} shadow-lg`}>
+      <div className={`relative flex flex-col p-6 rounded-2xl backdrop-blur-xl border transition-all duration-500 ${isActive ? 'bg-[#1a0b2e] border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.2)]' : 'bg-[#120b25]/80 border-white/10 group-hover:border-purple-500/30'}`}>
+        <div className={`w-12 h-12 rounded-xl mb-4 flex items-center justify-center bg-gradient-to-br ${skill.color} shadow-lg transition-transform duration-500 ${isActive ? 'scale-110' : ''}`}>
           <Icon className="w-6 h-6 text-white" />
         </div>
         
-        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">
+        <h3 className={`text-lg font-bold mb-2 transition-colors duration-500 ${isActive ? 'text-purple-300' : 'text-white group-hover:text-purple-300'}`}>
           {skill.title}
         </h3>
         
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className={`text-sm leading-relaxed transition-colors duration-500 ${isActive ? 'text-purple-200/80' : 'text-muted-foreground'}`}>
           {skill.desc}
         </p>
+      </div>
+    </motion.div>
+  );
+}
+
+function MobileExpertiseCard({ skill, index, isActive, onClick }: { skill: typeof expertiseSkills[0], index: number, isActive: boolean, onClick: () => void }) {
+  const Icon = skill.icon;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+    >
+      <div
+        onClick={onClick}
+        className={`group relative w-full rounded-2xl border transition-all duration-500 overflow-hidden cursor-pointer ${
+          isActive 
+            ? "border-purple-500/60 bg-[#1a0b2e] shadow-[0_0_30px_rgba(168,85,247,0.15)] opacity-100 scale-[1.02]" 
+            : "border-white/5 bg-[#120b25]/40 opacity-40 hover:opacity-80 scale-100 hover:bg-[#120b25]/80 hover:border-white/10"
+        }`}
+      >
+        {/* Background Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
+        
+        {/* Glow effect when active */}
+        {isActive && (
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent pointer-events-none" />
+        )}
+
+        <div className="relative p-4 md:p-5 flex items-center gap-4">
+          {/* Left Icon Block - ALWAYS COLORED */}
+          <div className={`shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center transition-all duration-500 shadow-lg bg-gradient-to-br ${skill.color}`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+          
+          {/* Content */}
+          <div className="flex-1 flex flex-col justify-center min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold transition-all duration-500 bg-gradient-to-br ${skill.color} text-white`}>
+                {index + 1}
+              </div>
+              <h3 className={`text-sm md:text-base font-bold truncate transition-colors duration-500 ${isActive ? "text-white" : "text-white/90"}`}>
+                {skill.title}
+              </h3>
+            </div>
+            <p className={`text-xs md:text-sm line-clamp-2 transition-colors duration-500 ${isActive ? "text-purple-200/90" : "text-muted-foreground"}`}>
+              {skill.desc}
+            </p>
+          </div>
+
+          {/* Right Arrow */}
+          <div className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? "bg-white/20 text-white" : "bg-white/5 text-white/40 group-hover:text-white/60"}`}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

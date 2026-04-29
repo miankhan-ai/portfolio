@@ -182,47 +182,45 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Tech Strip */}
+        {/* Tech Strip - Crawling Banner */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="mt-20 pt-8 border-t border-white/5 flex items-center gap-8 text-muted-foreground overflow-x-auto pb-4 md:pb-0"
+          className="mt-20 pt-8 border-t border-white/5 relative overflow-hidden flex items-center"
         >
-          <span className="font-mono text-xs uppercase tracking-wider whitespace-nowrap">Core Stack:</span>
-          <div className="flex gap-8">
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Terminal className="w-5 h-5" /> Python
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <BrainCircuit className="w-5 h-5" /> PyTorch
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Database className="w-5 h-5" /> PostgreSQL
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Zap className="w-5 h-5" /> FastAPI
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Code2 className="w-5 h-5" /> TypeScript
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Sparkles className="w-5 h-5" /> LangChain
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Box className="w-5 h-5" /> Docker
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Layout className="w-5 h-5" /> React.js
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Server className="w-5 h-5" /> Node.js
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Globe className="w-5 h-5" /> Next.js
-            </div>
-            <div className="flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors">
-              <Layers className="w-5 h-5" /> Vue.js
+          {/* Fading edges for seamless look */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          
+          <div className="flex items-center gap-4 text-muted-foreground mr-8 z-20 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full border border-white/5 shadow-lg relative left-6">
+            <span className="font-mono text-xs uppercase tracking-widest font-bold text-primary">Core Stack</span>
+          </div>
+
+          <div className="flex flex-1 overflow-hidden mask-image-linear-gradient">
+            <div className="flex animate-scroll hover:[animation-play-state:paused] w-max">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex gap-12 px-6 items-center">
+                  {[
+                    { name: "Python", icon: Terminal },
+                    { name: "PyTorch", icon: BrainCircuit },
+                    { name: "PostgreSQL", icon: Database },
+                    { name: "FastAPI", icon: Zap },
+                    { name: "TypeScript", icon: Code2 },
+                    { name: "LangChain", icon: Sparkles },
+                    { name: "Docker", icon: Box },
+                    { name: "React.js", icon: Layout },
+                    { name: "Node.js", icon: Server },
+                    { name: "Next.js", icon: Globe },
+                    { name: "Vue.js", icon: Layers }
+                  ].map((tech) => (
+                    <div key={tech.name} className="flex items-center gap-3 whitespace-nowrap hover:text-primary transition-colors cursor-default group">
+                      <tech.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" /> 
+                      <span className="font-medium text-sm tracking-wide">{tech.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
         </motion.div>

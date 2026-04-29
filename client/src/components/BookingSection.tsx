@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import { 
-  Calendar, 
-  Cpu, 
-  Rocket, 
-  Briefcase, 
+import {
+  Calendar,
+  Cpu,
+  Rocket,
+  Briefcase,
   MessageSquare,
   ShieldCheck,
 } from "lucide-react";
@@ -80,44 +80,49 @@ export function BookingSection() {
   }, [calendlyUrl]);
 
   return (
-    <section id="booking" className="py-24 bg-[#F4F6F9] text-[#0F172A]">
+    <section id="booking" className="py-16 md:py-20 bg-[#F4F6F9] text-[#0F172A]">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col lg:flex-row gap-16 items-start">
-          
-          {/* Left Column: Text and Stats */}
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12 items-start">
+
+          {/* Left Column */}
           <div className="lg:w-1/2">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 mb-8"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 mb-6"
             >
               <Calendar className="w-4 h-4 text-[#0F172A]" />
-              <span className="text-xs font-bold tracking-widest text-[#0F172A] uppercase">BOOK A CALL</span>
+              <span className="text-[10px] font-bold tracking-widest uppercase">
+                BOOK A CALL
+              </span>
             </motion.div>
 
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-[#0F172A]"
+              className="text-3xl md:text-5xl font-bold mb-4 tracking-tight"
             >
-              Work with me <span className="font-['Playfair_Display'] italic text-[#2563EB] font-normal">directly.</span>
+              Work with me{" "}
+              <span className="font-['Playfair_Display'] italic text-[#2563EB] font-normal">
+                directly.
+              </span>
             </motion.h2>
 
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="text-[#6B7280] text-lg max-w-xl mb-10 leading-relaxed"
+              className="text-[#6B7280] text-base max-w-lg mb-8 leading-relaxed"
             >
-              Schedule a free 30-minute intro call. No slides, no fluff — just a direct conversation about your project or role.
+              Schedule a free 30-minute intro call. No slides, no fluff — just a direct conversation.
             </motion.p>
 
-            {/* Discussion Pills */}
-            <div className="flex flex-wrap gap-3 mb-16">
+            {/* Pills */}
+            <div className="flex flex-wrap gap-2 mb-10">
               {[
                 { label: "ML Engineering", icon: Cpu },
                 { label: "Model Deployment", icon: Rocket },
@@ -127,56 +132,61 @@ export function BookingSection() {
                 <button
                   key={pill.label}
                   type="button"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-sm font-medium text-[#374151] hover:border-slate-300 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-medium text-[#374151] hover:border-slate-300 transition"
                 >
-                  <pill.icon className="w-4 h-4 text-[#2563EB]" />
+                  <pill.icon className="w-3.5 h-3.5 text-[#2563EB]" />
                   {pill.label}
                 </button>
               ))}
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-x-12 gap-y-10 max-w-md">
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6 max-w-sm">
               {[
                 { value: "50+", label: "Models deployed" },
                 { value: "95%", label: "Automation rate" },
                 { value: "99.9%", label: "Uptime" },
                 { value: "< 24hrs", label: "Response time" },
               ].map((stat) => (
-                <div key={stat.label} className="flex flex-col">
-                  <span className="text-4xl font-bold text-[#0F172A] mb-1">{stat.value}</span>
-                  <span className="text-sm font-medium text-[#6B7280]">{stat.label}</span>
+                <div key={stat.label}>
+                  <span className="text-2xl md:text-3xl font-bold block">
+                    {stat.value}
+                  </span>
+                  <span className="text-xs text-[#6B7280]">
+                    {stat.label}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right Column: Calendar Card */}
+          {/* Right Column */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
             className="lg:w-1/2 w-full"
           >
-            <div className="bg-white rounded-[16px] border border-slate-200/70 overflow-hidden relative">
-              {/* Calendly inline widget */}
-              <div
-                ref={embedHostRef}
-                className="w-full"
-                style={{ height: "clamp(680px, 80vh, 980px)" }}
-              />
-            </div>
-            
-            <p className="mt-6 text-center text-xs text-[#94A3B8] font-medium flex items-center justify-center gap-2">
+            <div
+              ref={embedHostRef}
+              className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm"
+              style={{ minWidth: "320px", height: "900px" }}
+            />
+
+            <p className="mt-4 text-center text-[11px] text-[#94A3B8] flex items-center justify-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Secure booking handled by Calendly. No account required.
+              Secure booking via Calendly
             </p>
 
-            <p className="mt-2 text-center text-xs text-[#94A3B8]">
-              Booking link:{" "}
-              <a className="text-[#2563EB] underline underline-offset-2" href={calendlyUrl} target="_blank" rel="noreferrer">
-                {calendlyUrl}
+            <p className="mt-1 text-center text-[11px] text-[#94A3B8]">
+              <a
+                className="text-[#2563EB] underline underline-offset-2"
+                href={calendlyUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open booking page
               </a>
             </p>
           </motion.div>

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Github, Terminal } from "lucide-react";
+import { Link } from "wouter";
 import type { Project } from "@shared/schema";
 
 interface ProjectCardProps {
@@ -9,13 +10,15 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, index }: ProjectCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative rounded-2xl glass-card hover:border-primary/30 transition-all duration-500 flex flex-col h-full hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2"
-    >
+    <Link href={`/project/${project.slug}`}>
+      <div className="block cursor-pointer h-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+          className="group relative rounded-2xl glass-card hover:border-primary/30 transition-all duration-500 flex flex-col h-full hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 cursor-pointer"
+        >
       <div className="aspect-video relative bg-muted overflow-hidden">
         {project.imageUrl ? (
           <img
@@ -31,24 +34,20 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
 
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
           {project.demoUrl && (
-            <a
-              href={project.demoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-full bg-white text-black hover:scale-110 transition-transform"
+            <button
+              onClick={(e) => { e.preventDefault(); window.open(project.demoUrl!, "_blank"); }}
+              className="p-3 rounded-full bg-white text-black hover:scale-110 transition-transform cursor-pointer relative z-10"
             >
               <ExternalLink className="w-5 h-5" />
-            </a>
+            </button>
           )}
           {project.repoUrl && (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-full bg-black text-white border border-white/20 hover:scale-110 transition-transform"
+            <button
+              onClick={(e) => { e.preventDefault(); window.open(project.repoUrl!, "_blank"); }}
+              className="p-3 rounded-full bg-black text-white border border-white/20 hover:scale-110 transition-transform cursor-pointer relative z-10"
             >
               <Github className="w-5 h-5" />
-            </a>
+            </button>
           )}
         </div>
       </div>
@@ -81,6 +80,8 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           )}
         </div>
       </div>
-    </motion.div>
+        </motion.div>
+      </div>
+    </Link>
   );
 }

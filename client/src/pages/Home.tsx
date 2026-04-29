@@ -7,8 +7,10 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { SkillCard } from "@/components/SkillCard";
 import { ContactForm } from "@/components/ContactForm";
 import { Footer } from "@/components/Footer";
+import { EducationExperience } from "@/components/EducationExperience";
 import { LearningSection } from "@/components/LearningSection";
 import { InteractiveExpertise } from "@/components/InteractiveExpertise";
+import { VoiceAgent } from "@/components/VoiceAgent";
 import { BookingSection } from "@/components/BookingSection";
 import { motion } from "framer-motion";
 import { Cpu, Globe, Rocket, Terminal, Sparkles, Mail, MessageSquare, Zap } from "lucide-react";
@@ -99,6 +101,9 @@ export default function Home() {
 
         {/* INTERACTIVE EXPERTISE SECTION */}
         <InteractiveExpertise />
+
+        {/* EDUCATION & EXPERIENCE SECTION */}
+        <EducationExperience />
 
         {/* PROJECTS SECTION - LIGHT */}
         <section id="projects" className="py-24 relative bg-white text-slate-900 light">
@@ -257,6 +262,9 @@ export default function Home() {
 
         {/* LEARNING SECTION */}
         <LearningSection />
+
+        {/* VOICE AGENT SECTION */}
+        <VoiceAgent />
 
         {/* BOOKING SECTION */}
         <BookingSection />

@@ -6,12 +6,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { AIChatBot } from "@/components/AIChatBot";
 import Home from "@/pages/Home";
+import ProjectDetails from "@/pages/ProjectDetails";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/project/*" component={ProjectDetails} />
+      <Route path="/project/:slug" component={ProjectDetails} />
       <Route component={NotFound} />
     </Switch>
   );
