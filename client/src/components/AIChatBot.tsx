@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  MessageSquare, 
-  X, 
-  Minus, 
-  Send, 
-  Sparkles, 
-  Terminal, 
+import {
+  MessageSquare,
+  X,
+  Minus,
+  Send,
+  Sparkles,
+  Terminal,
   Sun,
   Moon,
   Loader2,
@@ -80,59 +80,7 @@ function parseSseDeltas(chunk: string): { deltas: string[]; done: boolean; error
   return { deltas, done, error };
 }
 
-// ── Groq direct config (works on static hosting without a Node.js server) ──
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
-const GROQ_MODEL  = import.meta.env.VITE_GROQ_MODEL  || "llama-3.1-8b-instant";
-const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
 
-const SYSTEM_PROMPT = `You are an AI assistant representing Mian Khan, an ML engineer based in Lahore, Pakistan.
-Your job is to answer questions from recruiters, employers, and collaborators about Mian Khan's background, skills, projects, and availability.
-Be concise, professional, and friendly.
-
-STRICT FORMATTING RULES:
-- Use structured Markdown (bullet points, bold text, headers).
-- NEVER use large blocks of text.
-- Use bolding for key tech stack items and metrics.
-- Break down information into clear, scannable sections.
-
-About Mian Khan:
-- Specializes in **ML pipelines**, **model deployment**, and **AI infrastructure**
-- Has deployed **50+ models** (actually 10+ production AI systems) across automation, RAG, and agent workflows
-- Achieved **70%+ reduction** in manual operational workload through process automation
-- **40% faster inference** through optimized pipelines and model tuning
-- Built **5+ end-to-end ML pipelines** from data ingestion to monitoring
-- Maintains **99.9% uptime** across monitored systems
-
-Core Stack: **Python**, **PyTorch**, **PostgreSQL**, **FastAPI**, **TypeScript**, **LangChain**, **Docker**, **React.js**, **Node.js**, **Next.js**, **Vue.js**
-
-AI/ML Expertise:
-- **LLM Systems**: Production-grade LLM pipelines and workflows
-- **Multi-Agent Orchestration**: Autonomous agent systems that collaborate and execute tasks
-- **RAG**: Context-aware AI with vector search and knowledge grounding
-- **AI Automation**: Replacing manual workflows with intelligent end-to-end systems
-- **Model Integration & APIs**: OpenAI, open-source models, and tool integrations
-- **Scalable AI Architecture**: Reliable, maintainable, and scalable AI systems
-
-Key Projects:
-- **AI-Powered Business Incubator**: Orchestrates 9 AI agents for startup asset generation (LangGraph, Python, React, OpenAI). 99% time reduction, 15k+ assets generated.
-- **Privacy-First AI Chat Platform**: GDPR-compliant chatbot with <100ms latency, PII scrubbing, multi-provider LLM routing (React, FastAPI, Stripe). Zero data leaks with 500+ beta users.
-- **AI Content Automation Platform**: End-to-end SEO publishing workflow reducing manual effort by 90% (LangGraph, WordPress API).
-- **Fake Job Posting Detection**: BiLSTM model achieving 98.22% detection accuracy (Python, TensorFlow, NLP).
-- **RAG Agent**: High-precision retrieval system with sub-second latency (FAISS, LangChain, FastAPI).
-- **SJL Bot**: AI Credit Assistant processing 50+ daily queries (n8n, OpenAI, Telegram API).
-
-Engineering Philosophy:
-- **Production over Demos**: Builds robust, scalable systems, not just Jupyter notebooks. Replaced a Jupyter POC with a monitored FastAPI service handling 10k requests/day.
-- **Human-in-the-loop**: Designs systems that augment human intelligence. Built review interfaces improving labeling accuracy by 40%.
-- **Data-Centric AI**: Prioritizes data quality, versioning, and lineage. Implemented DVC pipelines detecting data drift.
-
-Currently Learning: Advanced RAG Architectures (75%), LLM Fine-tuning at Scale with LoRA/QLoRA (60%), MLOps with Kubernetes (85%).
-
-- Open to freelance projects, consulting, and full-time remote roles
-- Based in Lahore, PK — available for international remote work
-- Booking link: https://calendly.com/miankhan-dev/30min
-
-When someone asks to book a call or schedule a meeting, ALWAYS share the booking link https://calendly.com/miankhan-dev/30min and ask for their preferred time zone.`;
 
 export function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -147,7 +95,7 @@ export function AIChatBot() {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -180,27 +128,23 @@ export function AIChatBot() {
         .filter((m) => (m.role === "user" || m.role === "assistant") && m.content.trim().length > 0)
         .map((m) => ({ role: m.role, content: m.content }));
 
-      // Call Groq API directly from the browser
-      const response = await fetch(GROQ_URL, {
+      // Call our backend chat API instead of direct Groq
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: GROQ_MODEL,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
             ...chatHistory,
             { role: "user", content: text },
           ],
-          stream: true,
         }),
       });
 
       if (!response.ok) {
         const errBody = await response.text().catch(() => "");
-        throw new Error(errBody || `Groq API returned ${response.status}`);
+        throw new Error(errBody || `Chat API returned ${response.status}`);
       }
 
       const reader = response.body?.getReader();
@@ -223,28 +167,30 @@ export function AIChatBot() {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
 
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith("data:")) continue;
-            const payload = trimmed.slice(5).trim();
-            if (payload === "[DONE]") break;
-
-            try {
-              const json = JSON.parse(payload);
-              const delta = json?.choices?.[0]?.delta?.content;
-              if (typeof delta === "string" && delta.length) {
-                botContent += delta;
-                setMessages(prev => {
-                  const last = prev[prev.length - 1];
-                  const others = prev.slice(0, -1);
-                  return [...others, { ...last, content: botContent }];
-                });
+          for (const part of parts) {
+            const lines = part.split("\n");
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed || !trimmed.startsWith("data:")) continue;
+              const payload = trimmed.slice(5).trim();
+              
+              try {
+                const json = JSON.parse(payload);
+                const delta = json?.delta;
+                if (typeof delta === "string" && delta.length) {
+                  botContent += delta;
+                  setMessages(prev => {
+                    const last = prev[prev.length - 1];
+                    const others = prev.slice(0, -1);
+                    return [...others, { ...last, content: botContent }];
+                  });
+                }
+              } catch {
+                // ignore
               }
-            } catch {
-              // ignore non-JSON lines
             }
           }
         }
@@ -286,9 +232,9 @@ export function AIChatBot() {
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 100, scale: 0.9 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0, 
+            animate={{
+              opacity: 1,
+              y: 0,
               scale: 1,
               height: isMinimized ? "64px" : "520px"
             }}
@@ -309,22 +255,22 @@ export function AIChatBot() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-1 bg-black/30 rounded-full p-1 border border-white/10">
-                <button 
+                <button
                   onClick={toggleTheme}
                   className="p-1.5 hover:bg-white/10 rounded-full text-white/80 hover:text-white transition-colors"
                   title="Toggle Theme"
                 >
                   {chatTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                 </button>
-                <button 
+                <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="p-1.5 hover:bg-white/10 rounded-full text-white/80 hover:text-white transition-colors"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => setIsOpen(false)}
                   className="p-1.5 hover:bg-red-500/50 rounded-full text-white/80 hover:text-white transition-colors"
                 >
@@ -336,14 +282,14 @@ export function AIChatBot() {
             {/* Body */}
             <AnimatePresence>
               {!isMinimized && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="flex flex-col flex-1 overflow-hidden"
                 >
                   {/* Chat History */}
-                  <div 
+                  <div
                     ref={scrollRef}
                     className={`flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin ${chatTheme === "dark" ? "scrollbar-thumb-[#1E1E1E]" : "scrollbar-thumb-slate-200"} scrollbar-track-transparent`}
                   >
@@ -355,20 +301,20 @@ export function AIChatBot() {
                         <div className={`max-w-[85%] flex flex-col ${msg.role === "assistant" ? "items-start" : "items-end"}`}>
                           <div className={`
                             p-3.5 rounded-[20px] text-[14px] leading-relaxed
-                            ${msg.role === "assistant" 
-                              ? (chatTheme === "dark" ? "bg-[#1E1E1E] text-white rounded-bl-none" : "bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200") 
+                            ${msg.role === "assistant"
+                              ? (chatTheme === "dark" ? "bg-[#1E1E1E] text-white rounded-bl-none" : "bg-slate-100 text-slate-800 rounded-bl-none border border-slate-200")
                               : "bg-[#8B00FF] text-white rounded-br-none shadow-lg shadow-[#8B00FF]/10"}
                           `}>
                             {msg.role === "assistant" ? (
                               <div className={`prose prose-sm max-w-none ${chatTheme === "dark" ? "prose-invert text-white/90" : "text-slate-800"}`}>
-                                <ReactMarkdown 
+                                <ReactMarkdown
                                   remarkPlugins={[remarkGfm]}
                                   components={{
                                     a: ({ node, ...props }) => (
-                                      <a 
-                                        {...props} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
+                                      <a
+                                        {...props}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="text-[#8B00FF] font-bold underline hover:text-[#7B2FBE] transition-colors"
                                       />
                                     )
@@ -387,7 +333,7 @@ export function AIChatBot() {
                         </div>
                       </div>
                     ))}
-                    
+
                     {isLoading && (
                       <div className="flex justify-start">
                         <div className={`${chatTheme === "dark" ? "bg-[#1E1E1E]" : "bg-slate-100"} p-3 rounded-[20px] rounded-bl-none flex gap-1.5 items-center`}>
@@ -437,7 +383,7 @@ export function AIChatBot() {
                         )}
                       </button>
                     </div>
-                    
+
                     {/* Footer Info */}
                     <div className="mt-3 flex items-center justify-center gap-2 opacity-30">
                       <Terminal className={`w-3 h-3 ${chatTheme === "dark" ? "text-[#8B00FF]" : "text-slate-400"}`} />

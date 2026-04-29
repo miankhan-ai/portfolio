@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-center md:text-left">
-            <img src="/logo.png" alt="Mian Khan Logo" className="h-12 w-auto object-contain mb-4 mx-auto md:mx-0 theme-logo" />
+            <img src="/logo.png" alt="Logo" className="h-12 w-auto object-contain mb-4 mx-auto md:mx-0" />
             <p className="text-muted-foreground text-sm">
               &copy; {new Date().getFullYear()} AI & ML Engineer. All rights reserved.
             </p>

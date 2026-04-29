@@ -28,7 +28,7 @@ export function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-lg">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="block hover:opacity-80 transition-opacity">
-          <img src="/logo.png" alt="Mian Khan Logo" className="h-10 w-auto object-contain theme-logo" />
+          <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
         </Link>
 
         {/* Desktop Navigation */}
