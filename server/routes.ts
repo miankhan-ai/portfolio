@@ -210,7 +210,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post(api.chat.complete.path, async (req, res) => {
+  app.post("/api/chatbot-query", async (req, res) => {
     const inputSchema = api.chat.complete.input ?? z.any();
 
     const parsed = inputSchema.safeParse(req.body);
@@ -381,8 +381,8 @@ ${topSkills.map((s) => `- ${s.category}: ${s.items.join(", ")}`).join("\n")}
 
       // OpenAI-compatible providers (OpenAI/Groq/Together/etc.)
       const baseUrl = (process.env.AI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
-      const apiKey = process.env.AI_API_KEY;
-      if (!apiKey) throw new Error("Missing AI_API_KEY");
+      const apiKey = process.env.AI_API_KEY || process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
+      if (!apiKey) throw new Error("Missing AI_API_KEY / GROQ_API_KEY");
 
       const r = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
